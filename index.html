@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Capture Photo</title>
+
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/feather.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+    var pictureSource;   // picture source
+    var destinationType; // sets the format of returned value 
+
+    document.addEventListener("deviceready",onDeviceReady,false);
+
+    function onDeviceReady() {
+        pictureSource=navigator.camera.PictureSourceType;
+        destinationType=navigator.camera.DestinationType;
+    }
+
+    function onPhotoDataSuccess(imageData) {
+      var smallImage = document.getElementById('smallImage');
+
+      smallImage.style.display = 'block';
+      smallImage.src = "data:image/jpeg;base64," + imageData;
+    }
+
+    function onPhotoURISuccess(imageURI) {
+      var largeImage = document.getElementById('largeImage');
+      largeImage.style.display = 'block';
+      largeImage.src = imageURI;
+    }
+
+    function capturePhoto() {
+      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50 });
+    }
+
+    function getPhoto(source) {
+      navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, 
+        destinationType: destinationType.FILE_URI,
+        sourceType: source });
+    }
+
+    function onFail(message) {
+      alert('Failed because: ' + message);
+    }
+
+        
+   var featherEditor = new Aviary.Feather({
+       apiKey: '176f696e8cfdbadb',
+       apiVersion: 3,
+       theme: 'dark', // Check out our new 'light' and 'dark' themes!
+       tools: 'all',
+       language: 'pt_BR',
+       appendTo: '',
+       noCloseButton:true,
+       tools: ['crop', 'orientation'], 
+       initTool: 'crop',
+       cropPresets:[
+            ['Square', '1:1']
+        ],
+       forceCropPreset: ['Square', '1:1'],
+       onSave: function(imageID, newURL) {
+           var img = document.getElementById(imageID);
+           img.src = newURL;
+       },
+       onError: function(errorObj) {
+           alert(errorObj.message);
+       }
+   });
+   function launchEditor(id, src) {
+       featherEditor.launch({
+           image: id,
+           url: src
+       });
+      return false;
+   }
+    </script>
+  </head>
+  <body>
+    <button onclick="capturePhoto();">Capture Photo</button> <br>
+    <button onclick="getPhoto(pictureSource.PHOTOLIBRARY);">From Photo Library</button><br>
+    <img style="display:none;width:60px;height:60px;" id="smallImage" src="" />
+    <img style="display:none;" id="largeImage" src="" />
+      
+      <div id='injection_site'></div>
+      <!-- Add an edit button, passing the HTML id of the image and the public URL of the image -->
+      <p><input type="button" value='Edit photo'                onclick="return launchEditor('image1', 'http://images.aviary.com/imagesv5/feather_default.jpg');" /></p>
+      <img id="image1" src="http://images.aviary.com/imagesv5/feather_default.jpg" />
+  </body>
+</html>
